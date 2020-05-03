@@ -95,7 +95,7 @@ const UpdateInput = styled.input`
 
 function TodoItem({ id, done, text, fix }) {
   const dispatch = useTodoDispatch();
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState(text);
   const onToggle = () => {
     dispatch({ type: 'TOGGLE', id });
   };
@@ -104,6 +104,13 @@ function TodoItem({ id, done, text, fix }) {
   };
   const onFix = () => {
     dispatch({ type: 'FIX', id });
+    if (fix) {
+      dispatch({
+        type: 'UPDATE',
+        id,
+        value,
+      });
+    }
   };
   const onChange = (e) => {
     setValue(e.target.value);
@@ -116,7 +123,6 @@ function TodoItem({ id, done, text, fix }) {
       id,
       value,
     });
-    setValue('');
   };
   return (
     <TodoItemBlock>
@@ -125,7 +131,7 @@ function TodoItem({ id, done, text, fix }) {
       </CheckCircle>
       <Text done={done} fix={fix}>
         <form onSubmit={onSubmit}>
-          {fix && <UpdateInput value={value} onChange={onChange} />}
+          {fix && <UpdateInput autoFocus value={value} onChange={onChange} />}
           {fix || text}
         </form>
       </Text>
