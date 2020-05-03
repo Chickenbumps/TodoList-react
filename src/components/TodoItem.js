@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
-import { MdDone, MdDelete } from 'react-icons/all';
+import { MdDone, MdDelete, AiTwotoneEdit } from 'react-icons/all';
 import { useTodoDispatch } from '../TodoContext';
 
 const Remove = styled.div`
+  float: right;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -16,6 +17,20 @@ const Remove = styled.div`
   display: none;
 `;
 
+const Fix = styled.div`
+  float: right;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #dee2e6;
+  font-size: 24px;
+  cursor: pointer;
+  &:hover {
+    color: #4eee51;
+  }
+  display: none;
+`;
+
 const TodoItemBlock = styled.div`
   display: flex;
   align-items: center;
@@ -24,6 +39,10 @@ const TodoItemBlock = styled.div`
   &:hover {
     ${Remove} {
       display: initial;
+    }
+    ,
+    ${Fix} {
+      display: flex;
     }
   }
 `;
@@ -55,23 +74,64 @@ const Text = styled.div`
     props.done &&
     css`
       color: #ced4da;
+    `};
+  ${(props) =>
+    props.fix &&
+    css`
+      color: #4eee51;
     `}
 `;
 
-function TodoItem({ id, done, text }) {
+const UpdateInput = styled.input`
+  width: 100%;
+  font-size: 21px;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+`;
+
+function TodoItem({ id, done, text, fix }) {
   const dispatch = useTodoDispatch();
+  const [value, setValue] = useState('');
   const onToggle = () => {
     dispatch({ type: 'TOGGLE', id });
   };
   const onRemove = () => {
     dispatch({ type: 'REMOVE', id });
   };
+  const onFix = () => {
+    dispatch({ type: 'FIX', id });
+  };
+  const onChange = (e) => {
+    setValue(e.target.value);
+  };
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    dispatch({
+      type: 'UPDATE',
+      id,
+      value,
+    });
+    setValue('');
+  };
   return (
     <TodoItemBlock>
       <CheckCircle onClick={onToggle} done={done}>
         {done && <MdDone />}
       </CheckCircle>
-      <Text done={done}>{text}</Text>
+      <Text done={done} fix={fix}>
+        <form onSubmit={onSubmit}>
+          {fix && <UpdateInput value={value} onChange={onChange} />}
+          {fix || text}
+        </form>
+      </Text>
+      <Fix onClick={onFix} fix={fix}>
+        <AiTwotoneEdit />
+      </Fix>
       <Remove onClick={onRemove}>
         <MdDelete />
       </Remove>
